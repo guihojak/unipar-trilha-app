@@ -136,39 +136,48 @@ Diferenças que permanecem em relação ao wireframe:
 - **Ícones de curso:** vêm do Font Awesome, já dependência do projeto, pois o kit não os fornece.
 - **Botões de 28 dp** seguem o wireframe e atendem ao alvo mínimo de 24 × 24 px da WCAG 2.2 AA.
 
+> **Padrão das telas 2 a 7:** todas usam `AppDesignPage` (canvas de 360 dp escalado por `AppDesignScale`, fator 0,85–1,35) com as medidas tiradas do wireframe (px ÷ 3). Cada tela foi validada lado a lado com o wireframe em 360×640 e conferida em 412×915 e 768×1024.
+
 ### Tela 2 — `CaminhoTrilhaPage`
 
 ```text
-AppPage
-├── AlunoHeader
-├── TrilhaBanner                 (aprendizagem/widgets) faixa com o nome da trilha
-└── CaminhoMapa                  (aprendizagem/widgets)
-    ├── pontilhado entre os nós  (CustomPaint)
-    ├── nós: bloqueada (cadeado) · disponível (play) · atual (branco + “Comece/Continue aqui”) · concluída (✓) · recompensa (baú)
-    └── ilustrações decorativas: notebook e iguana de frente
+AppDesignPage
+├── AlunoHeader                  topo 21 dp
+├── TrilhaBanner                 16,3 dp abaixo; 39,7 dp de altura, margens de 9 dp,
+│                                ícone 22,7 dp e título Inter 16,5 sp
+└── CaminhoMapa                  (aprendizagem/widgets) altura base 428,7 dp (+62 dp por lição extra)
+    ├── centros dos nós nas posições absolutas do wireframe (7 lições)
+    ├── nós bloqueados 40 × 39 dp (oval + cadeado 16 dp); atual 52 × 34 dp com anel de 4 dp
+    ├── balão “Comece aqui” 89,3 × 31,3 dp em Fredoka 12,5 sp
+    ├── baú da recompensa à esquerda do nó com 4 pontos (`pathDots`)
+    └── notebook (89,4 dp) e iguana de frente (122 dp) decorativos
 ```
 
 ### Tela 3 — `CatalogoAlunoPage`
 
 ```text
-AppPage
-├── AlunoHeader
-└── PageSection "Trilhas de Aprendizado"
-    └── TrilhaCard × N  (ou AppEmptyState quando não há trilhas)
+AppDesignPage(scrollable: false)   o canvas ocupa a altura visível e só a lista rola
+├── AlunoHeader                    topo 21 dp
+├── "Trilhas de Aprendizado"       32 dp abaixo, Montserrat 13 sp
+└── Row
+    ├── ListView de TrilhaCard     espaço de 30 dp entre cards (ou AppEmptyState)
+    └── AppScrollIndicator         trilho e polegar sempre visíveis, como no wireframe
 ```
 
 ### Telas 4, 5 e 6 — `PraticaPage`
 
 ```text
-AppPage
-├── AppBackLink "Voltar à Trilha"
-├── QuizStepper "Questão n de total"
-├── enunciado + "Selecione uma alternativa"
-├── QuizOption × N
-└── AppButton "Enviar resposta"          ← tela 4
-    ou FeedbackCard danger + "Tentar novamente"   ← tela 5
-    ou FeedbackCard success + "Continuar"          ← tela 6
+AppDesignPage
+├── AppBackLink "Voltar à Trilha"   seta 11,3 × 20,3 dp, Inter 10,5 sp
+├── QuizStepper                     "Questão n de total" Inter 17 sp; segmento ativo 40 dp, demais 29,4 dp
+├── enunciado Inter 17,3 sp + "Selecione uma alternativa" 9,8 sp
+├── QuizOption × N                  47,6 dp de altura, espaço de 10 dp; letra Fredoka 16,5 sp, texto 21 sp
+└── AppButton.confirm "Enviar resposta" (160 dp)   ← tela 4
+    ou FeedbackCard danger (mascote neutra, código FiraCode, "Dica:")   ← tela 5
+    ou FeedbackCard success (mascote falando, código destacado) + "Continuar"   ← tela 6
 ```
+
+Na tela 5 não há botão “Tentar novamente” (o wireframe não tem): escolher outra alternativa limpa a correção e reabre o envio. O botão “Continuar” da tela 6 não aparece no wireframe, mas é necessário para seguir o fluxo; ele fica na base do card, na área vazia prevista pelo layout.
 
 Estados da página:
 
@@ -177,18 +186,21 @@ Estados da página:
 | sem seleção | selecionáveis | “Enviar resposta” desabilitado |
 | selecionada (tela 4) | uma `selected` | “Enviar resposta” habilitado |
 | enviando | bloqueadas | botão em carregamento, sem duplo envio |
-| incorreta (tela 5) | selecionada `incorrect`, demais bloqueadas | feedback + “Tentar novamente” limpa a seleção |
+| incorreta (tela 5) | selecionada `incorrect`, demais selecionáveis | feedback; nova seleção limpa a correção |
 | correta (tela 6) | selecionada `correct`, demais bloqueadas | feedback + “Continuar” |
 | falha no envio | seleção mantida | SnackBar com a mensagem (`ApiError.message` quando existir); nada é reenviado automaticamente |
 
 ### Tela 7 — `PerfilPage`
 
 ```text
-AppPage
-├── PerfilResumoCard      (perfil/widgets) nome · foto · couves · RA
-├── "VISÃO GERAL"
-├── CursosCard            (perfil/widgets) curso + quantidade de trilhas
-└── MetricasCard          (perfil/widgets) ranking · turma · XP · professores · iguana
+AppDesignPage
+├── PerfilResumoCard   182,7 dp, cantos inferiores 20 dp; nome Inter 15 sp; foto 95 dp com sombra;
+│                      couve + pontos Inter 12 sp; RA Inter 10 sp
+├── "VISÃO GERAL"      16,3 dp abaixo, Montserrat Black 15 sp
+├── CursosCard         132 dp; título Open Sans 15,5 sp; grade preenchida por coluna
+│                      (81 dp por coluna) com rolagem horizontal e barra visível de 4,6 dp
+└── MetricasCard       169 dp; rótulos Montserrat Bold 11 sp, valores Open Sans 12 sp;
+                       diamante do ranking e iguana com celular (126 dp)
 ```
 
 ## 5. Dados das telas
@@ -447,7 +459,8 @@ flutter build web --debug -t lib/main_preview.dart: concluído
 
 - **Integração:** as telas recebem dados prontos. Login, sessão por perfil, services e estados de carregamento/erro de rede ficam para os tickets de cada módulo (plano, etapas 1.2 a 4.3).
 - **Escopo do ticket:** o FE-002 exclui gamificação e mapa de nós. Como foi pedida a estrutura de todas as telas com wireframe, sequência diária, meta de XP, couves, ranking e o caminho de lições foram implementados **apenas como layout**, sem regra de negócio. A aba Desempenho não tem wireframe e mostra estado vazio.
-- **Ícones de curso** (`</>`, cubo, XAMPP, Spring, JS, Hibernate) não existem no kit; hoje aparecem o livro (cards) e selos com iniciais (perfil).
+- **Ícones de curso** (`</>`, cubo, XAMPP, Spring, JS, Hibernate) não existem no kit; são aproximações com Font Awesome e as cores das marcas (`brand*`). Troque por PNGs oficiais quando o design os exportar.
+- **Trilha da tela 2:** o wireframe mostra “Programação Orientada a Objeto” no banner e “Orientação a Objetos” no catálogo; o banner usa o título da trilha recebida.
 - **Resolução dos PNGs:** a mascote veio de uma renderização de 337×600 px; substitua por exportações em alta resolução mantendo nome e caminho (e ajuste `MascotPose.aspectRatio` se o recorte mudar).
 - **Fontes proprietárias:** se a equipe adquirir licença de app para Code Pro ou SF Pro, basta adicionar os arquivos e trocar os valores em `AppFonts`.
 - **Tokens derivados** dependem de confirmação do design.
