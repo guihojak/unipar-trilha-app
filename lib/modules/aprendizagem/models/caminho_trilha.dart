@@ -15,7 +15,7 @@ class LicaoCaminho {
   final String titulo;
   final StatusLicao status;
 
-  /// Nó final exibido como baú.
+  /// Exibe o baú ao lado do nó, ligado por pontos (4º nó no wireframe).
   final bool recompensa;
 
   bool get interativa => status != StatusLicao.bloqueada;
