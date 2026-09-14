@@ -114,8 +114,14 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(theme: AppTheme.dark, home: telas[2].build()),
     );
-    expect(find.byType(TrailCard), findsNWidgets(3));
-    expect(find.byType(AppProgressRing), findsNWidgets(3));
+    expect(
+      find.byType(TrailCard),
+      findsNWidgets(AlunoPreviewConteudo.trilhas.length),
+    );
+    expect(
+      find.byType(AppProgressRing),
+      findsNWidgets(AlunoPreviewConteudo.trilhas.length),
+    );
   });
 
   testWidgets('conteúdo respeita a largura máxima no desktop', (tester) async {

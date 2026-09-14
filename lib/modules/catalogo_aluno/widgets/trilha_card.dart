@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:unipar_trilha_app/core/widgets/trail_card.dart';
 import 'package:unipar_trilha_app/modules/catalogo_aluno/models/trilha_resumo.dart';
+import 'package:unipar_trilha_app/shared/widgets/icone_trilha_view.dart';
 
 /// Liga um [TrilhaResumo] ao `TrailCard` do design system.
 ///
@@ -20,12 +20,7 @@ class TrilhaCard extends StatelessWidget {
       status: trilha.status,
       tone: trilha.tom,
       hasNotification: trilha.temNotificacao,
-      leading: switch (trilha.icone) {
-        IconeTrilha.codigo => const FaIcon(FontAwesomeIcons.code),
-        IconeTrilha.objetos => const FaIcon(FontAwesomeIcons.cube),
-        IconeTrilha.servidor => const FaIcon(FontAwesomeIcons.server),
-        IconeTrilha.livro => null,
-      },
+      leading: IconeTrilhaView(icone: trilha.icone),
       onAction: () => onAbrir(trilha),
     );
   }

@@ -18,10 +18,12 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.surfaceBubble,
     required this.onBubble,
     required this.badgeSurface,
+    required this.shadowStrong,
     required this.actionPrimary,
     required this.actionPrimaryPressed,
     required this.actionSecondary,
     required this.actionInfo,
+    required this.actionConfirm,
     required this.onAction,
     required this.link,
     required this.linkEmphasis,
@@ -38,23 +40,29 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.borderSubtle,
     required this.borderCard,
     required this.borderGoal,
+    required this.borderInfo,
     required this.borderFocus,
     required this.avatarBorder,
     required this.progressTrack,
     required this.progressFill,
     required this.progressTrail,
+    required this.scrollTrack,
+    required this.scrollThumb,
     required this.pathNode,
     required this.pathNodeCurrent,
     required this.pathNodeRing,
     required this.pathConnector,
+    required this.pathDots,
     required this.feedbackSuccessSurface,
     required this.feedbackSuccessBorder,
     required this.feedbackSuccessText,
+    required this.feedbackSuccessTitle,
     required this.feedbackSuccessIcon,
     required this.feedbackDangerSurface,
     required this.feedbackDangerBorder,
     required this.feedbackDangerText,
     required this.codeText,
+    required this.codeHighlight,
     required this.trailBlueSurface,
     required this.trailBlueAction,
     required this.trailBlueTrack,
@@ -67,6 +75,14 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.trailCyanAction,
     required this.trailCyanTrack,
     required this.trailCyanIcon,
+    required this.trailCyanIconBox,
+    required this.trailCyanIconBoxBorder,
+    required this.brandSpring,
+    required this.brandXampp,
+    required this.brandJs,
+    required this.brandHibernate,
+    required this.onBrand,
+    required this.onBrandJs,
   });
 
   /// Tema escuro Unipar Trail Code, único tema do MVP.
@@ -82,10 +98,12 @@ class AppColors extends ThemeExtension<AppColors> {
     surfaceBubble: AppPalette.textLight,
     onBubble: AppPalette.navy950,
     badgeSurface: AppPalette.cobalt,
+    shadowStrong: AppPalette.black,
     actionPrimary: AppPalette.greenLight,
     actionPrimaryPressed: AppPalette.green,
     actionSecondary: AppPalette.navActive,
     actionInfo: AppPalette.cyan,
+    actionConfirm: AppPalette.progressFill,
     onAction: AppPalette.navy950,
     link: AppPalette.navActive,
     linkEmphasis: AppPalette.iris,
@@ -102,23 +120,29 @@ class AppColors extends ThemeExtension<AppColors> {
     borderSubtle: AppPalette.indigo,
     borderCard: AppPalette.slate,
     borderGoal: AppPalette.denim,
+    borderInfo: AppPalette.abyss,
     borderFocus: AppPalette.navActive,
     avatarBorder: AppPalette.lavender,
     progressTrack: AppPalette.track,
     progressFill: AppPalette.progressFill,
     progressTrail: AppPalette.lime,
+    scrollTrack: AppPalette.scrollTrack,
+    scrollThumb: AppPalette.scrollThumb,
     pathNode: AppPalette.violetBorder,
     pathNodeCurrent: AppPalette.textLight,
     pathNodeRing: AppPalette.navActive,
     pathConnector: AppPalette.textSoft,
+    pathDots: AppPalette.pewter,
     feedbackSuccessSurface: AppPalette.successSurface,
     feedbackSuccessBorder: AppPalette.successBorder,
     feedbackSuccessText: AppPalette.greenLight,
+    feedbackSuccessTitle: AppPalette.mint,
     feedbackSuccessIcon: AppPalette.statusSuccess,
     feedbackDangerSurface: AppPalette.dangerSurface,
     feedbackDangerBorder: AppPalette.dangerBorder,
     feedbackDangerText: AppPalette.statusError,
     codeText: AppPalette.cyan,
+    codeHighlight: AppPalette.codeAqua,
     trailBlueSurface: AppPalette.royal,
     trailBlueAction: AppPalette.lime,
     trailBlueTrack: AppPalette.indigoDeep,
@@ -131,6 +155,14 @@ class AppColors extends ThemeExtension<AppColors> {
     trailCyanAction: AppPalette.sky,
     trailCyanTrack: AppPalette.track,
     trailCyanIcon: AppPalette.textLight,
+    trailCyanIconBox: AppPalette.azure,
+    trailCyanIconBoxBorder: AppPalette.azureLight,
+    brandSpring: AppPalette.brandSpring,
+    brandXampp: AppPalette.brandXampp,
+    brandJs: AppPalette.brandJs,
+    brandHibernate: AppPalette.brandHibernate,
+    onBrand: AppPalette.white,
+    onBrandJs: AppPalette.black,
   );
 
   /// Tokens do tema atual; usa [dark] quando a extensão não foi registrada.
@@ -172,6 +204,9 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Contadores sobre ilustrações (sequência, +1).
   final Color badgeSurface;
 
+  /// Base de sombras (nós do caminho, foto do perfil).
+  final Color shadowStrong;
+
   // Ações
   /// Botão primário e seta de avanço.
   final Color actionPrimary;
@@ -185,13 +220,16 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Botão informativo e rótulos de métricas.
   final Color actionInfo;
 
+  /// Botão de envio de resposta (tela 4).
+  final Color actionConfirm;
+
   /// Texto e ícone sobre ações claras.
   final Color onAction;
 
-  /// Ações textuais, como "Voltar à Trilha".
+  /// Ações textuais, como a volta para a trilha.
   final Color link;
 
-  /// Ação textual de seção, como "Ver todas".
+  /// Ação textual de seção, como ver todas.
   final Color linkEmphasis;
 
   // Texto
@@ -201,7 +239,7 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Legendas e metadados.
   final Color textSecondary;
 
-  /// Percentual da meta diária.
+  /// Percentual da meta diária e contador de questões.
   final Color textMuted;
 
   /// Legenda sobre superfícies informativas.
@@ -223,7 +261,7 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Badge de notificação.
   final Color notification;
 
-  // Bordas e progresso
+  // Bordas, progresso e rolagem
   /// Borda de opções e campos.
   final Color borderDefault;
 
@@ -235,6 +273,9 @@ class AppColors extends ThemeExtension<AppColors> {
 
   /// Contorno da meta diária.
   final Color borderGoal;
+
+  /// Contorno do card de métricas (tela 7).
+  final Color borderInfo;
 
   /// Foco e seleção.
   final Color borderFocus;
@@ -251,6 +292,12 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Preenchimento do progresso da trilha.
   final Color progressTrail;
 
+  /// Trilho das barras de rolagem visíveis.
+  final Color scrollTrack;
+
+  /// Indicador das barras de rolagem visíveis.
+  final Color scrollThumb;
+
   // Caminho da trilha
   /// Nó de lição.
   final Color pathNode;
@@ -261,8 +308,11 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Contorno e balão da lição atual.
   final Color pathNodeRing;
 
-  /// Pontilhado entre os nós.
+  /// Conectores entre nós.
   final Color pathConnector;
+
+  /// Pontos entre a lição e o baú.
+  final Color pathDots;
 
   // Feedback
   /// Fundo de resposta correta.
@@ -271,8 +321,11 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Borda de resposta correta.
   final Color feedbackSuccessBorder;
 
-  /// Título de resposta correta.
+  /// Texto positivo secundário.
   final Color feedbackSuccessText;
+
+  /// Título do acerto e rótulo Correta.
+  final Color feedbackSuccessTitle;
 
   /// Ícone de resposta correta.
   final Color feedbackSuccessIcon;
@@ -286,8 +339,11 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Título e ícone de resposta incorreta.
   final Color feedbackDangerText;
 
-  /// Trechos de código.
+  /// Trechos de código sem caixa.
   final Color codeText;
+
+  /// Código dentro da caixa do feedback de erro.
+  final Color codeHighlight;
 
   // Tons de TrailCard
   /// Card de trilha azul.
@@ -311,7 +367,7 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Trilho do progresso do card roxo.
   final Color trailPurpleTrack;
 
-  /// Ícone do curso no card roxo.
+  /// Ícone do curso no card roxo e no banner.
   final Color trailPurpleIcon;
 
   /// Card de trilha ciano.
@@ -326,6 +382,31 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Ícone do curso no card ciano.
   final Color trailCyanIcon;
 
+  /// Caixa sólida do ícone no card ciano.
+  final Color trailCyanIconBox;
+
+  /// Contorno da caixa do ícone no card ciano.
+  final Color trailCyanIconBoxBorder;
+
+  // Marcas dos cursos
+  /// Spring.
+  final Color brandSpring;
+
+  /// XAMPP.
+  final Color brandXampp;
+
+  /// JavaScript.
+  final Color brandJs;
+
+  /// Hibernate.
+  final Color brandHibernate;
+
+  /// Glifo sobre cores de marca.
+  final Color onBrand;
+
+  /// Texto sobre o amarelo do JavaScript.
+  final Color onBrandJs;
+
   @override
   AppColors copyWith({
     Color? backgroundApp,
@@ -339,10 +420,12 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? surfaceBubble,
     Color? onBubble,
     Color? badgeSurface,
+    Color? shadowStrong,
     Color? actionPrimary,
     Color? actionPrimaryPressed,
     Color? actionSecondary,
     Color? actionInfo,
+    Color? actionConfirm,
     Color? onAction,
     Color? link,
     Color? linkEmphasis,
@@ -359,23 +442,29 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? borderSubtle,
     Color? borderCard,
     Color? borderGoal,
+    Color? borderInfo,
     Color? borderFocus,
     Color? avatarBorder,
     Color? progressTrack,
     Color? progressFill,
     Color? progressTrail,
+    Color? scrollTrack,
+    Color? scrollThumb,
     Color? pathNode,
     Color? pathNodeCurrent,
     Color? pathNodeRing,
     Color? pathConnector,
+    Color? pathDots,
     Color? feedbackSuccessSurface,
     Color? feedbackSuccessBorder,
     Color? feedbackSuccessText,
+    Color? feedbackSuccessTitle,
     Color? feedbackSuccessIcon,
     Color? feedbackDangerSurface,
     Color? feedbackDangerBorder,
     Color? feedbackDangerText,
     Color? codeText,
+    Color? codeHighlight,
     Color? trailBlueSurface,
     Color? trailBlueAction,
     Color? trailBlueTrack,
@@ -388,6 +477,14 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? trailCyanAction,
     Color? trailCyanTrack,
     Color? trailCyanIcon,
+    Color? trailCyanIconBox,
+    Color? trailCyanIconBoxBorder,
+    Color? brandSpring,
+    Color? brandXampp,
+    Color? brandJs,
+    Color? brandHibernate,
+    Color? onBrand,
+    Color? onBrandJs,
   }) {
     return AppColors(
       backgroundApp: backgroundApp ?? this.backgroundApp,
@@ -401,10 +498,12 @@ class AppColors extends ThemeExtension<AppColors> {
       surfaceBubble: surfaceBubble ?? this.surfaceBubble,
       onBubble: onBubble ?? this.onBubble,
       badgeSurface: badgeSurface ?? this.badgeSurface,
+      shadowStrong: shadowStrong ?? this.shadowStrong,
       actionPrimary: actionPrimary ?? this.actionPrimary,
       actionPrimaryPressed: actionPrimaryPressed ?? this.actionPrimaryPressed,
       actionSecondary: actionSecondary ?? this.actionSecondary,
       actionInfo: actionInfo ?? this.actionInfo,
+      actionConfirm: actionConfirm ?? this.actionConfirm,
       onAction: onAction ?? this.onAction,
       link: link ?? this.link,
       linkEmphasis: linkEmphasis ?? this.linkEmphasis,
@@ -421,26 +520,32 @@ class AppColors extends ThemeExtension<AppColors> {
       borderSubtle: borderSubtle ?? this.borderSubtle,
       borderCard: borderCard ?? this.borderCard,
       borderGoal: borderGoal ?? this.borderGoal,
+      borderInfo: borderInfo ?? this.borderInfo,
       borderFocus: borderFocus ?? this.borderFocus,
       avatarBorder: avatarBorder ?? this.avatarBorder,
       progressTrack: progressTrack ?? this.progressTrack,
       progressFill: progressFill ?? this.progressFill,
       progressTrail: progressTrail ?? this.progressTrail,
+      scrollTrack: scrollTrack ?? this.scrollTrack,
+      scrollThumb: scrollThumb ?? this.scrollThumb,
       pathNode: pathNode ?? this.pathNode,
       pathNodeCurrent: pathNodeCurrent ?? this.pathNodeCurrent,
       pathNodeRing: pathNodeRing ?? this.pathNodeRing,
       pathConnector: pathConnector ?? this.pathConnector,
+      pathDots: pathDots ?? this.pathDots,
       feedbackSuccessSurface:
           feedbackSuccessSurface ?? this.feedbackSuccessSurface,
       feedbackSuccessBorder:
           feedbackSuccessBorder ?? this.feedbackSuccessBorder,
       feedbackSuccessText: feedbackSuccessText ?? this.feedbackSuccessText,
+      feedbackSuccessTitle: feedbackSuccessTitle ?? this.feedbackSuccessTitle,
       feedbackSuccessIcon: feedbackSuccessIcon ?? this.feedbackSuccessIcon,
       feedbackDangerSurface:
           feedbackDangerSurface ?? this.feedbackDangerSurface,
       feedbackDangerBorder: feedbackDangerBorder ?? this.feedbackDangerBorder,
       feedbackDangerText: feedbackDangerText ?? this.feedbackDangerText,
       codeText: codeText ?? this.codeText,
+      codeHighlight: codeHighlight ?? this.codeHighlight,
       trailBlueSurface: trailBlueSurface ?? this.trailBlueSurface,
       trailBlueAction: trailBlueAction ?? this.trailBlueAction,
       trailBlueTrack: trailBlueTrack ?? this.trailBlueTrack,
@@ -453,6 +558,15 @@ class AppColors extends ThemeExtension<AppColors> {
       trailCyanAction: trailCyanAction ?? this.trailCyanAction,
       trailCyanTrack: trailCyanTrack ?? this.trailCyanTrack,
       trailCyanIcon: trailCyanIcon ?? this.trailCyanIcon,
+      trailCyanIconBox: trailCyanIconBox ?? this.trailCyanIconBox,
+      trailCyanIconBoxBorder:
+          trailCyanIconBoxBorder ?? this.trailCyanIconBoxBorder,
+      brandSpring: brandSpring ?? this.brandSpring,
+      brandXampp: brandXampp ?? this.brandXampp,
+      brandJs: brandJs ?? this.brandJs,
+      brandHibernate: brandHibernate ?? this.brandHibernate,
+      onBrand: onBrand ?? this.onBrand,
+      onBrandJs: onBrandJs ?? this.onBrandJs,
     );
   }
 
@@ -475,6 +589,7 @@ class AppColors extends ThemeExtension<AppColors> {
       surfaceBubble: Color.lerp(surfaceBubble, other.surfaceBubble, t)!,
       onBubble: Color.lerp(onBubble, other.onBubble, t)!,
       badgeSurface: Color.lerp(badgeSurface, other.badgeSurface, t)!,
+      shadowStrong: Color.lerp(shadowStrong, other.shadowStrong, t)!,
       actionPrimary: Color.lerp(actionPrimary, other.actionPrimary, t)!,
       actionPrimaryPressed: Color.lerp(
         actionPrimaryPressed,
@@ -483,6 +598,7 @@ class AppColors extends ThemeExtension<AppColors> {
       )!,
       actionSecondary: Color.lerp(actionSecondary, other.actionSecondary, t)!,
       actionInfo: Color.lerp(actionInfo, other.actionInfo, t)!,
+      actionConfirm: Color.lerp(actionConfirm, other.actionConfirm, t)!,
       onAction: Color.lerp(onAction, other.onAction, t)!,
       link: Color.lerp(link, other.link, t)!,
       linkEmphasis: Color.lerp(linkEmphasis, other.linkEmphasis, t)!,
@@ -499,15 +615,19 @@ class AppColors extends ThemeExtension<AppColors> {
       borderSubtle: Color.lerp(borderSubtle, other.borderSubtle, t)!,
       borderCard: Color.lerp(borderCard, other.borderCard, t)!,
       borderGoal: Color.lerp(borderGoal, other.borderGoal, t)!,
+      borderInfo: Color.lerp(borderInfo, other.borderInfo, t)!,
       borderFocus: Color.lerp(borderFocus, other.borderFocus, t)!,
       avatarBorder: Color.lerp(avatarBorder, other.avatarBorder, t)!,
       progressTrack: Color.lerp(progressTrack, other.progressTrack, t)!,
       progressFill: Color.lerp(progressFill, other.progressFill, t)!,
       progressTrail: Color.lerp(progressTrail, other.progressTrail, t)!,
+      scrollTrack: Color.lerp(scrollTrack, other.scrollTrack, t)!,
+      scrollThumb: Color.lerp(scrollThumb, other.scrollThumb, t)!,
       pathNode: Color.lerp(pathNode, other.pathNode, t)!,
       pathNodeCurrent: Color.lerp(pathNodeCurrent, other.pathNodeCurrent, t)!,
       pathNodeRing: Color.lerp(pathNodeRing, other.pathNodeRing, t)!,
       pathConnector: Color.lerp(pathConnector, other.pathConnector, t)!,
+      pathDots: Color.lerp(pathDots, other.pathDots, t)!,
       feedbackSuccessSurface: Color.lerp(
         feedbackSuccessSurface,
         other.feedbackSuccessSurface,
@@ -521,6 +641,11 @@ class AppColors extends ThemeExtension<AppColors> {
       feedbackSuccessText: Color.lerp(
         feedbackSuccessText,
         other.feedbackSuccessText,
+        t,
+      )!,
+      feedbackSuccessTitle: Color.lerp(
+        feedbackSuccessTitle,
+        other.feedbackSuccessTitle,
         t,
       )!,
       feedbackSuccessIcon: Color.lerp(
@@ -544,6 +669,7 @@ class AppColors extends ThemeExtension<AppColors> {
         t,
       )!,
       codeText: Color.lerp(codeText, other.codeText, t)!,
+      codeHighlight: Color.lerp(codeHighlight, other.codeHighlight, t)!,
       trailBlueSurface: Color.lerp(
         trailBlueSurface,
         other.trailBlueSurface,
@@ -576,6 +702,22 @@ class AppColors extends ThemeExtension<AppColors> {
       trailCyanAction: Color.lerp(trailCyanAction, other.trailCyanAction, t)!,
       trailCyanTrack: Color.lerp(trailCyanTrack, other.trailCyanTrack, t)!,
       trailCyanIcon: Color.lerp(trailCyanIcon, other.trailCyanIcon, t)!,
+      trailCyanIconBox: Color.lerp(
+        trailCyanIconBox,
+        other.trailCyanIconBox,
+        t,
+      )!,
+      trailCyanIconBoxBorder: Color.lerp(
+        trailCyanIconBoxBorder,
+        other.trailCyanIconBoxBorder,
+        t,
+      )!,
+      brandSpring: Color.lerp(brandSpring, other.brandSpring, t)!,
+      brandXampp: Color.lerp(brandXampp, other.brandXampp, t)!,
+      brandJs: Color.lerp(brandJs, other.brandJs, t)!,
+      brandHibernate: Color.lerp(brandHibernate, other.brandHibernate, t)!,
+      onBrand: Color.lerp(onBrand, other.onBrand, t)!,
+      onBrandJs: Color.lerp(onBrandJs, other.onBrandJs, t)!,
     );
   }
 }

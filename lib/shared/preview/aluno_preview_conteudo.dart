@@ -18,6 +18,15 @@ abstract final class AlunoPreviewConteudo {
     sequenciaDias: 3,
   );
 
+  static const frontend = TrilhaResumo(
+    id: 4,
+    titulo: 'Frontend - Básico',
+    progresso: 0,
+    status: TrailStatus.notStarted,
+    icone: IconeTrilha.codigo,
+  );
+
+  /// Quatro trilhas: a home mostra duas e o catálogo rola, como na tela 3.
   static const trilhas = [
     TrilhaResumo(
       id: 1,
@@ -41,17 +50,10 @@ abstract final class AlunoPreviewConteudo {
       progresso: 0,
       status: TrailStatus.notStarted,
       tom: TrailCardTone.cyan,
-      icone: IconeTrilha.servidor,
+      icone: IconeTrilha.xampp,
     ),
+    frontend,
   ];
-
-  static const frontend = TrilhaResumo(
-    id: 4,
-    titulo: 'Frontend - Básico',
-    progresso: 0,
-    status: TrailStatus.notStarted,
-    tom: TrailCardTone.cyan,
-  );
 
   static const desafio = DesafioPratica(
     id: 1,
@@ -66,14 +68,16 @@ abstract final class AlunoPreviewConteudo {
     ],
   );
 
+  /// Sete lições, como na tela 2, com o baú ao lado da quarta.
   static CaminhoTrilha caminho(TrilhaResumo trilha) {
     const titulos = [
       'Primeiros passos',
-      'Variáveis',
-      'Condicionais',
-      'Laços',
-      'Funções',
-      'Revisão',
+      'Conceitos básicos',
+      'Prática guiada',
+      'Revisão parcial',
+      'Aprofundamento',
+      'Projeto',
+      'Avaliação final',
     ];
     final concluidas = (trilha.progresso * titulos.length).floor();
     return CaminhoTrilha(
@@ -83,18 +87,13 @@ abstract final class AlunoPreviewConteudo {
           LicaoCaminho(
             id: trilha.id * 10 + i,
             titulo: titulos[i],
+            recompensa: i == 3,
             status: i < concluidas
                 ? StatusLicao.concluida
                 : i == concluidas
                 ? StatusLicao.atual
                 : StatusLicao.bloqueada,
           ),
-        LicaoCaminho(
-          id: trilha.id * 10 + titulos.length,
-          titulo: 'Baú da trilha',
-          status: StatusLicao.bloqueada,
-          recompensa: true,
-        ),
       ],
     );
   }
@@ -108,7 +107,7 @@ abstract final class AlunoPreviewConteudo {
     return switch (opcao.id) {
       4 => const CorrecaoPratica(
         correta: true,
-        explicacao: 'A tag <p> em HTML cria um parágrafo.',
+        explicacao: 'A tag <p> em HTML, cria um parágrafo.',
         codigo: '<p>Meu parágrafo!</p>',
       ),
       2 => const CorrecaoPratica(
@@ -136,14 +135,23 @@ abstract final class AlunoPreviewConteudo {
     aluno: aluno,
     pontos: 115,
     xp: 16860,
-    turma: '2ª série',
+    turma: '2º série',
     professores: ['Jaime William Dias'],
     ranking: 'Diamante',
+    // Ordem por coluna: Spring e JavaScript na 1ª, XAMPP e Hibernate na 2ª.
     cursos: [
-      CursoResumo(nome: 'Spring', quantidade: 2),
-      CursoResumo(nome: 'XAMPP', quantidade: 1),
-      CursoResumo(nome: 'JavaScript', quantidade: 4),
-      CursoResumo(nome: 'Hibernate', quantidade: 3),
+      CursoResumo(nome: 'Spring', quantidade: 2, icone: IconeCurso.spring),
+      CursoResumo(
+        nome: 'JavaScript',
+        quantidade: 4,
+        icone: IconeCurso.javascript,
+      ),
+      CursoResumo(nome: 'XAMPP', quantidade: 1, icone: IconeCurso.xampp),
+      CursoResumo(
+        nome: 'Hibernate',
+        quantidade: 3,
+        icone: IconeCurso.hibernate,
+      ),
     ],
   );
 

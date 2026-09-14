@@ -31,16 +31,18 @@ abstract final class AppDesignScale {
 
 /// Página desenhada no canvas de 360 dp e escalada pela largura da tela.
 ///
-/// Quando a área visível é mais alta que o conteúdo, o canvas recebe a altura
-/// da área visível (em unidades de desenho) para que `Spacer`s distribuam a
-/// sobra. Quando é mais baixa, a página rola.
-///
-/// O conteúdo é medido com `IntrinsicHeight`; não use `LayoutBuilder` dentro
-/// de [child].
+/// - `scrollable: true` (padrão): o canvas recebe ao menos a altura da área
+///   visível (em unidades de desenho) para que `Spacer`s distribuam a sobra;
+///   quando o conteúdo é maior, a página rola. O conteúdo é medido com
+///   `IntrinsicHeight`, portanto não use `LayoutBuilder` nem `ListView`
+///   dentro de [child].
+/// - `scrollable: false`: o canvas tem exatamente a altura da área visível.
+///   Use `Expanded` com rolagem interna (ex.: lista da tela 3).
 class AppDesignPage extends StatelessWidget {
-  const AppDesignPage({super.key, required this.child});
+  const AppDesignPage({super.key, required this.child, this.scrollable = true});
 
   final Widget child;
+  final bool scrollable;
 
   @override
   Widget build(BuildContext context) {
@@ -52,28 +54,32 @@ class AppDesignPage extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, viewport) {
             final scale = AppDesignScale.forWidth(viewport.maxWidth);
-            final minHeight = viewport.hasBoundedHeight
+            final visibleHeight = viewport.hasBoundedHeight
                 ? viewport.maxHeight / scale
-                : 0.0;
-            return SingleChildScrollView(
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: SizedBox(
-                  width: AppDesignScale.designWidth * scale,
-                  child: FittedBox(
-                    fit: BoxFit.fitWidth,
-                    alignment: Alignment.topCenter,
-                    child: SizedBox(
-                      width: AppDesignScale.designWidth,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(minHeight: minHeight),
-                        child: IntrinsicHeight(child: child),
-                      ),
-                    ),
+                : AppDesignScale.designHeight;
+
+            final Widget canvas = scrollable
+                ? ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: visibleHeight),
+                    child: IntrinsicHeight(child: child),
+                  )
+                : SizedBox(height: visibleHeight, child: child);
+
+            final frame = Align(
+              alignment: Alignment.topCenter,
+              child: SizedBox(
+                width: AppDesignScale.designWidth * scale,
+                child: FittedBox(
+                  fit: BoxFit.fitWidth,
+                  alignment: Alignment.topCenter,
+                  child: SizedBox(
+                    width: AppDesignScale.designWidth,
+                    child: canvas,
                   ),
                 ),
               ),
             );
+            return scrollable ? SingleChildScrollView(child: frame) : frame;
           },
         ),
       ),

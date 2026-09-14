@@ -57,4 +57,21 @@ abstract final class AppPalette {
   static const dusk = Color(0xFF7177A8);
   static const haze = Color(0xFF79A5C1);
   static const plumNight = Color(0xFF150815);
+
+  // Telas 2–7, amostradas no FE-002 refinado.
+  static const azure = Color(0xFF47B1FF);
+  static const azureLight = Color(0xFF55B5FF);
+  static const mint = Color(0xFF72DD76);
+  static const codeAqua = Color(0xFF01ECF9);
+  static const pewter = Color(0xFFA4A5A6);
+  static const scrollTrack = Color(0xFF5B6E9E);
+  static const scrollThumb = Color(0xFF9EA5C7);
+  static const abyss = Color(0xFF1D3872);
+  static const black = Color(0xFF000000);
+
+  // Cores de marca dos cursos (ícones da tela 7 e card XAMPP da tela 3).
+  static const brandSpring = Color(0xFF6DB33F);
+  static const brandXampp = Color(0xFFFB7A24);
+  static const brandJs = Color(0xFFF7DF1E);
+  static const brandHibernate = Color(0xFF59666C);
 }

@@ -90,13 +90,20 @@ class TrailCard extends StatelessWidget {
       ),
     };
 
+    final caixaSolida = tone == TrailCardTone.cyan;
     final iconBox = Container(
       width: 47,
       height: 47,
       decoration: BoxDecoration(
-        color: colors.textOnSurface.withValues(alpha: 0.05),
+        color: caixaSolida
+            ? colors.trailCyanIconBox
+            : colors.textOnSurface.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: colors.textOnSurface.withValues(alpha: 0.07)),
+        border: Border.all(
+          color: caixaSolida
+              ? colors.trailCyanIconBoxBorder
+              : colors.textOnSurface.withValues(alpha: 0.07),
+        ),
       ),
       alignment: Alignment.center,
       child: IconTheme(

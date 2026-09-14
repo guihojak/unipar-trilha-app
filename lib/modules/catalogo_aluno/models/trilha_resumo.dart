@@ -1,10 +1,7 @@
 import 'package:unipar_trilha_app/core/widgets/trail_card.dart';
+import 'package:unipar_trilha_app/shared/models/icone_trilha.dart';
 
-/// Ícone do curso exibido na caixa do card.
-///
-/// O kit não traz ícones de curso; `TrilhaCard` usa os glifos equivalentes do
-/// Font Awesome, dependência já prevista no projeto.
-enum IconeTrilha { codigo, objetos, servidor, livro }
+export 'package:unipar_trilha_app/shared/models/icone_trilha.dart';
 
 /// Trilha exibida nos cards da home (tela 1) e do catálogo (tela 3).
 class TrilhaResumo {
