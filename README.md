@@ -2,7 +2,7 @@
 
 Fundação Flutter do sistema **Unipar Trilha**, organizada pelo mesmo padrão modular do GulaPay e adaptada ao domínio e aos contratos reais deste projeto.
 
-Esta entrega contém somente o esqueleto, a comunicação HTTP e a autenticação sem interface. Ainda não existem telas de login, home, autoria, prática ou acompanhamento, nem identidade visual.
+Esta entrega contém o esqueleto, a comunicação HTTP, a autenticação sem interface e o design system (FE-002). Ainda não existem telas de login, home, autoria, prática ou acompanhamento. Detalhes do design system em [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md).
 
 ## Estado da implementação
 
@@ -11,7 +11,8 @@ Esta entrega contém somente o esqueleto, a comunicação HTTP e a autenticaçã
 | 1.1 | Projeto Android/Web, estrutura modular e configuração | concluído |
 | 1.2 técnico | Cliente HTTP, health, DTO e service de login | concluído sem tela |
 | 1.3 técnico | Persistência, restauração, invalidação e logout | concluído sem navegação |
-| Telas e design system | Aguardam elementos visuais e cores | não iniciado |
+| FE-002 | Design system: tokens, tema, ativos e widgets compartilhados | concluído |
+| Telas | Login, home, autoria, prática e acompanhamento | não iniciado |
 | Módulos de negócio | Trilha, distribuição, catálogo, prática e painel | não iniciado |
 
 Isso não conclui as etapas funcionais 1.1–1.3 do plano: o aceite visual e a integração pela interface serão realizados nos tickets seguintes.
@@ -36,8 +37,8 @@ lib/
 │   ├── auth_session.dart
 │   ├── constants_api.dart
 │   ├── health_service.dart
-│   ├── theme/
-│   └── widgets/
+│   ├── theme/          # tokens e ThemeData (FE-002)
+│   └── widgets/        # componentes visuais compartilhados (FE-002)
 ├── modules/
 │   ├── login/
 │   │   ├── dto/
@@ -48,9 +49,18 @@ lib/
 │   ├── distribuicao/
 │   ├── catalogo_aluno/
 │   ├── aprendizagem/
-│   └── acompanhamento/
-└── shared/
+│   ├── acompanhamento/
+│   └── perfil/                  # tela 7 (FE-002)
+├── shared/
+│   ├── models/ e widgets/       # cabeçalho do aluno usado por várias telas
+│   └── preview/                 # conteúdo de exemplo das telas
+└── main_preview.dart            # pré-visualização das telas 1–7
+
+assets/images/                   # ícones, ilustrações e mascote do kit
+assets/fonts/                    # Inter, Montserrat, Open Sans, Fira Code e Fredoka (OFL)
 ```
+
+As telas dos wireframes ficam em `modules/<módulo>/page/`; a navegação do aluno está em `modules/home/page/aluno_navegacao_page.dart`. Veja o mapa completo em [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md).
 
 Pastas vazias possuem `.gitkeep`. Os módulos de negócio foram apenas reservados; nenhum contrato foi antecipado neles.
 
