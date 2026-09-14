@@ -173,10 +173,11 @@ class _RingPainter extends CustomPainter {
   }
 }
 
-/// Indicador segmentado de questões ("Questão 1 de 5").
+/// Indicador segmentado de questões ("Questão 1 de 5"), tela 4.
 ///
-/// [current] começa em 1. Questões anteriores ficam com a borda de destaque,
-/// a atual com a cor ativa e as seguintes com a cor neutra.
+/// Rótulo Inter 17 sp à esquerda e segmentos à direita: atual 40 × 10,4 dp,
+/// demais 29,4 dp, 8 dp entre eles. Questões anteriores usam `borderDefault`,
+/// a atual `iconActive` e as seguintes `iconDefault`.
 class QuizStepper extends StatelessWidget {
   const QuizStepper({
     super.key,
@@ -185,6 +186,11 @@ class QuizStepper extends StatelessWidget {
     this.showLabel = true,
   }) : assert(total > 0),
        assert(current >= 1 && current <= total);
+
+  static const double activeWidth = 40;
+  static const double idleWidth = 29.4;
+  static const double gap = 8;
+  static const double segmentHeight = 10.4;
 
   final int current;
   final int total;
@@ -195,21 +201,20 @@ class QuizStepper extends StatelessWidget {
     final colors = AppColors.of(context);
     final label = 'Questão $current de $total';
     final segments = Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         for (var index = 0; index < total; index++) ...[
-          if (index > 0) const SizedBox(width: AppSpacing.xs),
-          Expanded(
-            flex: index == current - 1 ? 3 : 2,
-            child: Container(
-              height: 10,
-              decoration: BoxDecoration(
-                color: index == current - 1
-                    ? colors.iconActive
-                    : index < current - 1
-                    ? colors.borderDefault
-                    : colors.iconDefault,
-                borderRadius: BorderRadius.circular(AppRadius.pill),
-              ),
+          if (index > 0) const SizedBox(width: gap),
+          Container(
+            width: index == current - 1 ? activeWidth : idleWidth,
+            height: segmentHeight,
+            decoration: BoxDecoration(
+              color: index == current - 1
+                  ? colors.iconActive
+                  : index < current - 1
+                  ? colors.borderDefault
+                  : colors.iconDefault,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
           ),
         ],
@@ -220,34 +225,27 @@ class QuizStepper extends StatelessWidget {
       child: ExcludeSemantics(
         child: !showLabel
             ? segments
-            : LayoutBuilder(
-                builder: (context, constraints) {
-                  final text = Text(
-                    label,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: colors.textSecondary,
+            : Row(
+                children: [
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w400,
+                          height: 1,
+                          color: colors.textMuted,
+                        ),
+                      ),
                     ),
-                  );
-                  // Em telas estreitas o rótulo fica acima dos segmentos.
-                  if (constraints.maxWidth < 480) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        text,
-                        const SizedBox(height: AppSpacing.xs),
-                        segments,
-                      ],
-                    );
-                  }
-                  return Row(
-                    children: [
-                      text,
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(child: segments),
-                    ],
-                  );
-                },
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  segments,
+                ],
               ),
       ),
     );

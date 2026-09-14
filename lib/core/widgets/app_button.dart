@@ -4,7 +4,7 @@ import 'package:unipar_trilha_app/core/theme/app_spacing.dart';
 import 'package:unipar_trilha_app/core/theme/app_typography.dart';
 import 'package:unipar_trilha_app/core/widgets/app_icon.dart';
 
-enum AppButtonVariant { primary, secondary, info, outline }
+enum AppButtonVariant { primary, secondary, info, confirm, outline }
 
 enum AppButtonSize {
   /// 28 dp: botões internos dos cards dos wireframes (telas 1 e 3). Atende
@@ -84,10 +84,16 @@ class AppButton extends StatelessWidget {
           AppButtonVariant.primary => colors.actionPrimary,
           AppButtonVariant.secondary => colors.actionSecondary,
           AppButtonVariant.info => colors.actionInfo,
+          AppButtonVariant.confirm => colors.actionConfirm,
           AppButtonVariant.outline => Colors.transparent,
         };
     final foreground =
-        foregroundColor ?? (isOutline ? colors.link : colors.onAction);
+        foregroundColor ??
+        (isOutline
+            ? colors.link
+            : variant == AppButtonVariant.confirm
+            ? colors.textOnSurface
+            : colors.onAction);
     // Durante o carregamento o botão mantém a aparência ativa.
     final active = _enabled || isLoading;
     final effectiveForeground = active ? foreground : colors.textSecondary;

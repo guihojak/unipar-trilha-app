@@ -71,10 +71,12 @@ void main() {
     expect(find.text('Incorreta'), findsOneWidget);
     expect(find.text('Dica: pense na inicial de parágrafo.'), findsOneWidget);
 
-    await tester.tap(find.text('Tentar novamente'));
+    // Nova tentativa: escolher outra alternativa limpa o feedback, como no
+    // wireframe (sem botão extra no card de erro).
+    await tester.tap(find.bySemanticsLabel('b) <th>'));
     await tester.pump();
     expect(find.byType(FeedbackCard), findsNothing);
-    expect(enviar(tester).onPressed, isNull);
+    expect(enviar(tester).onPressed, isNotNull);
   });
 
   testWidgets('tela 6: acerto mostra feedback e continua', (tester) async {
