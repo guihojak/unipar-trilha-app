@@ -22,6 +22,7 @@ A primeira versão entregava os componentes em uma única página de catálogo, 
 │ Telas               modules/<módulo>/page/*_page.dart        │
 │ Partes de uma tela  modules/<módulo>/widgets/                │
 │ Dados da tela       modules/<módulo>/models/                 │
+│ Contrato e HTTP     modules/<módulo>/dto/ · service/         │
 ├──────────────────────────────────────────────────────────────┤
 │ Compartilhado       shared/widgets (AlunoHeader…)            │
 │ entre módulos       shared/models  (AlunoResumo)             │
@@ -37,7 +38,8 @@ Regras de dependência:
 |---|---|---|
 | `core/theme`, `core/widgets` | apenas Flutter e `core` | `modules`, `shared` |
 | `shared/` | `core` | `modules` (exceto `shared/preview`) |
-| `modules/<m>/widgets`, `models` | `core`, `shared`, modelos de outro módulo quando a tela os exibe | páginas de outros módulos |
+| `modules/<m>/dto`, `service` | `core` (`ApiClient`, `ApiError`, `ConstantsApi`), DTOs do módulo | widgets e páginas |
+| `modules/<m>/widgets`, `models` | `core/theme`, `core/widgets`, `shared`, DTOs (só nos `models`), modelos de outro módulo quando a tela os exibe | services, Dio e páginas de outros módulos |
 | `modules/<m>/page` | tudo acima | — |
 | `AlunoNavegacaoPage` | páginas de todos os módulos do aluno | — |
 
@@ -205,23 +207,46 @@ AppDesignPage
 
 ## 5. Dados das telas
 
-As páginas **não chamam API nesta etapa** (fora do escopo do ticket). Cada página recebe seus dados por construtor e avisa ações por callbacks. Assim, nos tickets de cada módulo, basta trocar a origem dos dados pelo service HTTP sem mexer no layout.
+A integração segue o plano (`PLANO_IMPLEMENTACAO_FRONTEND.md`, seção 6): **páginas chamam services, services chamam `ApiClient.dio`, DTOs fazem `fromJson`/`toJson`** e as páginas recebem o service opcionalmente (o padrão é o service real).
 
-| Model | Arquivo | Usado por |
-|---|---|---|
-| `AlunoResumo` | `shared/models/aluno_resumo.dart` | telas 1, 2, 3 e 7 |
-| `TrilhaResumo` | `catalogo_aluno/models/trilha_resumo.dart` | telas 1, 2 e 3 |
-| `MetaDiaria`, `ProximaLicao` | `home/models/home_aluno.dart` | tela 1 |
-| `CaminhoTrilha`, `LicaoCaminho`, `StatusLicao` | `aprendizagem/models/caminho_trilha.dart` | tela 2 |
-| `DesafioPratica`, `OpcaoPratica`, `CorrecaoPratica`, `ResponderDesafio` | `aprendizagem/models/desafio_pratica.dart` | telas 4–6 |
-| `VisaoGeralAluno`, `CursoResumo` | `perfil/models/visao_geral_aluno.dart` | tela 7 |
-| `AlunoConteudo` | `home/models/aluno_conteudo.dart` | agrega tudo para a navegação |
+```text
+API (backend)  →  service/ (Dio + ApiError)  →  dto/ (contrato JSON)
+               →  models/  (dados de tela: fromDistribuicao, fromSessao, fromResposta)
+               →  page/    (estado: carregando, erro com retry, vazio, sucesso)
+               →  widgets/ e core/widgets (somente apresentação, sem HTTP)
+```
 
-Decisões importantes:
+#### 5.1 Telas ligadas aos contratos do backend
 
-- `OpcaoPratica` tem apenas `id` e `texto`; **não existe campo `correta`**. A correção só chega em `CorrecaoPratica`, depois do envio, como exige o plano.
-- `ResponderDesafio` é uma função assíncrona. Hoje a pré-visualização a implementa; depois ela será `AprendizagemService.responder`.
-- Estes models são **de tela**. Os DTOs dos contratos (`fromJson`/`toJson`) continuam sendo criados em `dto/` nos tickets de integração e convertidos para eles.
+| Rota | Service | DTO | Model de tela | Tela |
+|---|---|---|---|---|
+| `GET /aluno/distribuicoes` | `CatalogoAlunoService.listar` | `CatalogoAlunoResponse`, `DistribuicaoAlunoResponse` | `TrilhaResumo.fromDistribuicao` | 1 e 3 |
+| `POST /aluno/distribuicoes/{id}/sessoes` | `AprendizagemService.iniciarOuRetomar` | `SessaoResponse`, `ProgressoResponse`, `DesafioAlunoResponse`, `OpcaoAlunoResponse` | `DesafioPratica.fromSessao` | 4 |
+| `GET /aluno/sessoes/{id}` | `AprendizagemService.buscarSessao` | `SessaoResponse` | `DesafioPratica.fromSessao` | retomada |
+| `POST /aluno/sessoes/{id}/respostas` | `AprendizagemService.responder` | `RespostaAlunoRequest`, `RespostaAlunoResponse` | `CorrecaoPratica.fromResposta` | 5 e 6 |
+
+- `AlunoNavegacaoPage` carrega o catálogo uma vez (home e aba Trilhas usam a mesma lista), mostra carregando/erro com “Tentar novamente”/vazio e recarrega ao sair da prática, refletindo o `progresso` do backend.
+- `SessaoPraticaPage` inicia ou retoma a sessão da distribuição, envia `desafioId` e `opcaoId`, avança com `proximoDesafio` e mostra “Trilha concluída!” quando `concluida=true`. `PraticaPage` continua apenas visual.
+- `DesafioAlunoResponse`/`OpcaoPratica` **não têm campo `correta`**; a correção só chega depois do envio.
+- `AppLoadingState` e `AppErrorState` (`core/widgets/app_async_state.dart`) são os estados compartilhados de carregamento e erro com retry.
+
+#### 5.2 Dados ainda sem endpoint
+
+Entregues prontos em `AlunoConteudo` (`home/models/aluno_conteudo.dart`) até o backend expor as rotas:
+
+| Model | Arquivo | Tela | Observação |
+|---|---|---|---|
+| `AlunoResumo` | `shared/models/aluno_resumo.dart` | 1, 2, 3 e 7 | nome e RA podem vir de `AuthSession`; foto por `fotoUrl` |
+| `MetaDiaria`, `ProximaLicao` | `home/models/home_aluno.dart` | 1 | gamificação (fora do MVP) |
+| `CaminhoTrilha`, `LicaoCaminho` | `aprendizagem/models/caminho_trilha.dart` | 2 | o contrato não lista lições; qualquer nó liberado abre a sessão da distribuição |
+| `VisaoGeralAluno`, `CursoResumo` | `perfil/models/visao_geral_aluno.dart` | 7 | sem rota de perfil |
+
+Quando uma rota existir, crie `dto/` + `service/` no módulo, converta para o model de tela e troque o campo de `AlunoConteudo` por um carregamento como o do catálogo — as páginas não mudam.
+
+#### 5.3 Campos visuais sem contrato
+
+- `TrilhaResumo.tom`/`icone`: alternam pela posição no catálogo; `temNotificacao` fica falso.
+- `CorrecaoPratica.codigo`/`dica`: o `FeedbackCard` oculta esses blocos quando ausentes (a API envia só `feedback`).
 
 ## 6. Estrutura de pastas
 
@@ -242,24 +267,29 @@ lib/
 │   └── widgets/                   app_shell, app_page, app_bottom_navigation, profile_header,
 │                                  app_avatar, page_section, app_button, app_back_link,
 │                                  app_text_field, app_progress, trail_card, quiz_option,
-│                                  feedback_card, app_empty_state, app_icon, app_mascot
+│                                  feedback_card, app_empty_state, app_async_state, app_icon,
+│                                  app_mascot, app_design_frame, app_scroll_indicator
 ├── shared/
-│   ├── models/aluno_resumo.dart
-│   ├── widgets/aluno_header.dart, sequencia_badge.dart
-│   └── preview/aluno_preview_conteudo.dart
+│   ├── models/aluno_resumo.dart, icone_trilha.dart
+│   ├── widgets/aluno_header.dart, sequencia_badge.dart, icone_trilha_view.dart
+│   └── preview/aluno_preview_conteudo.dart, aluno_preview_api.dart
 └── modules/
     ├── home/
     │   ├── models/   home_aluno.dart, aluno_conteudo.dart
     │   ├── widgets/  meta_diaria_card.dart, proxima_licao_card.dart
     │   └── page/     aluno_home_page.dart, aluno_navegacao_page.dart
     ├── catalogo_aluno/
+    │   ├── dto/      catalogo_aluno_response.dart
+    │   ├── service/  catalogo_aluno_service.dart
     │   ├── models/   trilha_resumo.dart
     │   ├── widgets/  trilha_card.dart
     │   └── page/     catalogo_aluno_page.dart
     ├── aprendizagem/
+    │   ├── dto/      sessao_response.dart, resposta_aluno_request.dart, resposta_aluno_response.dart
+    │   ├── service/  aprendizagem_service.dart
     │   ├── models/   caminho_trilha.dart, desafio_pratica.dart
     │   ├── widgets/  trilha_banner.dart, caminho_mapa.dart
-    │   └── page/     caminho_trilha_page.dart, pratica_page.dart
+    │   └── page/     caminho_trilha_page.dart, pratica_page.dart, sessao_pratica_page.dart
     └── perfil/
         ├── models/   visao_geral_aluno.dart
         ├── widgets/  perfil_resumo_card.dart, cursos_card.dart, metricas_card.dart
@@ -267,8 +297,10 @@ lib/
 
 test/
 ├── support/design_system_harness.dart
+├── aluno_dto_test.dart, aluno_services_test.dart
 ├── design_system/   app_theme_test, app_button_test, quiz_feedback_test, layout_test
-└── telas/           telas_aluno_layout_test, pratica_page_test, aluno_navegacao_test
+└── telas/           telas_aluno_layout_test, pratica_page_test, sessao_pratica_page_test,
+                     aluno_navegacao_test, catalogo_estados_test, home_responsiva_test
 ```
 
 O módulo `perfil` é novo em relação ao plano, pois a tela 7 não se encaixa em nenhum dos módulos reservados. Os módulos `login`, `trilha`, `distribuicao` e `acompanhamento` não receberam telas porque ainda não há wireframes para eles.
@@ -414,11 +446,10 @@ Acessibilidade: rótulos de semântica em nós do caminho, alternativas (`checke
 flutter run -d chrome -t lib/main_preview.dart
 ```
 
-Abre `AlunoNavegacaoPage` com `AlunoPreviewConteudo`, que contém os textos dos wireframes. Na pré-visualização a resposta correta é a opção `<p>`; as demais mostram o feedback de erro. Esse conteúdo:
+Abre `AlunoPreviewConteudo.navegacao()`: a mesma `AlunoNavegacaoPage` do app, com os **services reais** sobre `AlunoPreviewApi` (`shared/preview/aluno_preview_api.dart`), um `HttpClientAdapter` do Dio que responde às rotas do aluno com o JSON dos contratos e guarda o avanço das sessões em memória — o `MockService` previsto no plano. Há atraso simulado de 600 ms para exibir os estados de carregamento. Na primeira questão a resposta correta é `<p>`.
 
-- não é um `MockService` e não é referenciado por `main.dart`;
-- é reutilizado pelos testes de tela;
-- será descartado quando os services reais existirem.
+- Não é referenciado por `main.dart`; para ligar o app real basta criar a navegação sem os services opcionais (`AlunoNavegacaoPage(conteudo: ...)`).
+- É reutilizado pelos testes de tela com `atraso: Duration.zero`.
 
 Inspeção visual realizada no build web:
 
@@ -436,14 +467,18 @@ Inspeção visual realizada no build web:
 | `telas/telas_aluno_layout_test.dart` | **telas 1, 2, 3, 4–6 e 7 sem overflow em 360, 768 e 1366 px**, textos dos wireframes, proporção de todas as mascotes, limite de cards na home, largura máxima |
 | `telas/pratica_page_test.dart` | tela 4 (habilitar envio), tela 5 (erro, envio único, nova tentativa), tela 6 (acerto e continuar), falha de rede mantendo seleção, voltar |
 | `telas/aluno_navegacao_test.dart` | troca de abas, home → caminho na aba Trilhas, caminho → prática → voltar, lição bloqueada, “Começar” da próxima lição |
+| `telas/home_responsiva_test.dart` | home em 360×640, 398×866, 412×915, 768×1024 e 1366×900 com a mesma escala |
+| `aluno_dto_test.dart` | contratos de catálogo, sessão e resposta; campo obrigatório ausente; conversão para `TrilhaResumo`, `DesafioPratica` e `CorrecaoPratica` |
+| `aluno_services_test.dart` | método, rota e corpo de cada chamada; Problem Details → `ApiError`; JSON fora do contrato |
+| `telas/sessao_pratica_page_test.dart` | carregando → desafio → erro → acerto → `proximoDesafio`; falha ao carregar com retry |
+| `telas/catalogo_estados_test.dart` | catálogo carregando, erro com retry, sucesso e lista vazia |
 
 Resultado em 14/09/2026 (Flutter 3.44.8):
 
 ```text
-dart format lib test: 0 arquivos alterados
+dart format lib test: sem pendências
 flutter analyze: No issues found
-flutter test: 74 testes passaram e 1 integração opcional foi ignorada
-flutter build web --debug -t lib/main_preview.dart: concluído
+flutter test: 97 testes passaram e 1 integração opcional foi ignorada
 ```
 
 ## 10. Critérios de aceite do ticket
@@ -457,7 +492,7 @@ flutter build web --debug -t lib/main_preview.dart: concluído
 
 ## 11. Limitações e pendências
 
-- **Integração:** as telas recebem dados prontos. Login, sessão por perfil, services e estados de carregamento/erro de rede ficam para os tickets de cada módulo (plano, etapas 1.2 a 4.3).
+- **Integração:** catálogo e prática já passam por `CatalogoAlunoService` e `AprendizagemService` com os contratos do backend, mas `main.dart` ainda não abre a navegação do aluno: falta a tela de login e o roteamento por perfil (etapa 1.2), e o aceite integrado com backend real (etapas 3.2 e 4.x). Perfil, meta diária, próxima lição e lições do caminho não têm endpoint (seção 5.2).
 - **Escopo do ticket:** o FE-002 exclui gamificação e mapa de nós. Como foi pedida a estrutura de todas as telas com wireframe, sequência diária, meta de XP, couves, ranking e o caminho de lições foram implementados **apenas como layout**, sem regra de negócio. A aba Desempenho não tem wireframe e mostra estado vazio.
 - **Ícones de curso** (`</>`, cubo, XAMPP, Spring, JS, Hibernate) não existem no kit; são aproximações com Font Awesome e as cores das marcas (`brand*`). Troque por PNGs oficiais quando o design os exportar.
 - **Trilha da tela 2:** o wireframe mostra “Programação Orientada a Objeto” no banner e “Orientação a Objetos” no catálogo; o banner usa o título da trilha recebida.
