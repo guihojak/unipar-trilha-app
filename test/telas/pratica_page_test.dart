@@ -14,7 +14,7 @@ void main() {
   Future<void> abrir(
     WidgetTester tester, {
     ResponderDesafio? responder,
-    VoidCallback? onContinuar,
+    ValueChanged<CorrecaoPratica>? onContinuar,
     VoidCallback? onVoltar,
   }) async {
     useSurface(tester, const Size(1366, 2000));
@@ -26,7 +26,7 @@ void main() {
             desafio: AlunoPreviewConteudo.desafio,
             onResponder: responder ?? AlunoPreviewConteudo.responder,
             onVoltar: onVoltar ?? () {},
-            onContinuar: onContinuar ?? () {},
+            onContinuar: onContinuar ?? (_) {},
           ),
         ),
       ),
@@ -81,7 +81,7 @@ void main() {
 
   testWidgets('tela 6: acerto mostra feedback e continua', (tester) async {
     var continuou = false;
-    await abrir(tester, onContinuar: () => continuou = true);
+    await abrir(tester, onContinuar: (_) => continuou = true);
 
     await tester.tap(find.bySemanticsLabel('d) <p>'));
     await tester.pump();

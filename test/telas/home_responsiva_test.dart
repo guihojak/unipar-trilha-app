@@ -5,7 +5,6 @@ import 'package:unipar_trilha_app/core/widgets/app_bottom_navigation.dart';
 import 'package:unipar_trilha_app/core/widgets/app_design_frame.dart';
 import 'package:unipar_trilha_app/core/widgets/app_mascot.dart';
 import 'package:unipar_trilha_app/core/widgets/trail_card.dart';
-import 'package:unipar_trilha_app/modules/home/page/aluno_navegacao_page.dart';
 import 'package:unipar_trilha_app/modules/home/widgets/proxima_licao_card.dart';
 import 'package:unipar_trilha_app/shared/preview/aluno_preview_conteudo.dart';
 import 'package:unipar_trilha_app/shared/widgets/sequencia_badge.dart';
@@ -26,10 +25,11 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.dark,
-        home: AlunoNavegacaoPage(conteudo: AlunoPreviewConteudo.conteudo()),
+        home: AlunoPreviewConteudo.navegacao(atraso: Duration.zero),
       ),
     );
-    await tester.pump();
+    // O catálogo chega pelo service (API simulada) após o primeiro quadro.
+    await tester.pumpAndSettle();
   }
 
   for (final size in telas) {

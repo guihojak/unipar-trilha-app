@@ -61,7 +61,7 @@ void main() {
         desafio: AlunoPreviewConteudo.desafio,
         onResponder: AlunoPreviewConteudo.responder,
         onVoltar: () {},
-        onContinuar: () {},
+        onContinuar: (_) {},
       ),
       textos: [
         'Voltar à Trilha',

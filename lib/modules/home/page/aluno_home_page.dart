@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:unipar_trilha_app/core/theme/app_colors.dart';
 import 'package:unipar_trilha_app/core/theme/app_spacing.dart';
+import 'package:unipar_trilha_app/core/widgets/app_async_state.dart';
 import 'package:unipar_trilha_app/core/widgets/app_design_frame.dart';
 import 'package:unipar_trilha_app/core/widgets/page_section.dart';
 import 'package:unipar_trilha_app/modules/catalogo_aluno/models/trilha_resumo.dart';
@@ -39,7 +41,15 @@ class AlunoHomePage extends StatelessWidget {
     this.metaDiaria,
     this.proximaLicao,
     this.limiteTrilhas = 2,
+    this.carregandoTrilhas = false,
+    this.erroTrilhas,
+    this.onTentarNovamente,
   });
+
+  /// Estado de `CatalogoAlunoService.listar`, controlado pela navegação.
+  final bool carregandoTrilhas;
+  final String? erroTrilhas;
+  final VoidCallback? onTentarNovamente;
 
   final AlunoResumo aluno;
   final List<TrilhaResumo> trilhas;
@@ -81,15 +91,29 @@ class AlunoHomePage extends StatelessWidget {
               headerPadding: const EdgeInsets.fromLTRB(22, 0, 27, 0),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(19, 0, 14, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (var i = 0; i < visiveis.length; i++) ...[
-                      if (i > 0) const SizedBox(height: AppSpacing.xs),
-                      TrilhaCard(trilha: visiveis[i], onAbrir: onAbrirTrilha),
-                    ],
-                  ],
-                ),
+                child: carregandoTrilhas
+                    ? const AppLoadingState(message: 'Carregando trilhas...')
+                    : erroTrilhas != null
+                    ? _AvisoTrilhas(
+                        mensagem: erroTrilhas!,
+                        onTentarNovamente: onTentarNovamente,
+                      )
+                    : visiveis.isEmpty
+                    ? const _AvisoTrilhas(
+                        mensagem: 'Nenhuma trilha disponível no momento.',
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (var i = 0; i < visiveis.length; i++) ...[
+                            if (i > 0) const SizedBox(height: AppSpacing.xs),
+                            TrilhaCard(
+                              trilha: visiveis[i],
+                              onAbrir: onAbrirTrilha,
+                            ),
+                          ],
+                        ],
+                      ),
               ),
             ),
             if (proximaLicao != null) ...[
@@ -103,6 +127,38 @@ class AlunoHomePage extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Mensagem compacta no lugar dos cards (lista vazia ou falha ao carregar).
+class _AvisoTrilhas extends StatelessWidget {
+  const _AvisoTrilhas({required this.mensagem, this.onTentarNovamente});
+
+  final String mensagem;
+  final VoidCallback? onTentarNovamente;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+      child: Column(
+        children: [
+          Text(
+            mensagem,
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: colors.textSecondary),
+          ),
+          if (onTentarNovamente != null)
+            TextButton(
+              onPressed: onTentarNovamente,
+              child: const Text('Tentar novamente'),
+            ),
+        ],
       ),
     );
   }

@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:unipar_trilha_app/core/api_error.dart';
 import 'package:unipar_trilha_app/core/theme/app_assets.dart';
 import 'package:unipar_trilha_app/core/widgets/app_bottom_navigation.dart';
 import 'package:unipar_trilha_app/core/widgets/app_empty_state.dart';
 import 'package:unipar_trilha_app/core/widgets/app_page.dart';
 import 'package:unipar_trilha_app/core/widgets/app_shell.dart';
-import 'package:unipar_trilha_app/modules/aprendizagem/models/caminho_trilha.dart';
 import 'package:unipar_trilha_app/modules/aprendizagem/page/caminho_trilha_page.dart';
-import 'package:unipar_trilha_app/modules/aprendizagem/page/pratica_page.dart';
+import 'package:unipar_trilha_app/modules/aprendizagem/page/sessao_pratica_page.dart';
+import 'package:unipar_trilha_app/modules/aprendizagem/service/aprendizagem_service.dart';
 import 'package:unipar_trilha_app/modules/catalogo_aluno/models/trilha_resumo.dart';
 import 'package:unipar_trilha_app/modules/catalogo_aluno/page/catalogo_aluno_page.dart';
+import 'package:unipar_trilha_app/modules/catalogo_aluno/service/catalogo_aluno_service.dart';
 import 'package:unipar_trilha_app/modules/home/models/aluno_conteudo.dart';
 import 'package:unipar_trilha_app/modules/home/models/home_aluno.dart';
 import 'package:unipar_trilha_app/modules/home/page/aluno_home_page.dart';
@@ -27,12 +29,23 @@ enum AbaAluno { inicio, desempenho, trilhas, perfil }
 /// | Trilhas | livro | 3 → 2 → 4/5/6 (pilha própria) |
 /// | Perfil | menu | 7 |
 ///
+/// Carrega o catálogo com `CatalogoAlunoService` (home e aba Trilhas usam a
+/// mesma lista) e abre a prática com `SessaoPraticaPage`. Os services são
+/// opcionais para testes e pré-visualização; em execução normal usam a API.
+///
 /// A aba Trilhas tem um `Navigator` interno para manter a navegação inferior
 /// visível no caminho e na prática, como nos wireframes.
 class AlunoNavegacaoPage extends StatefulWidget {
-  const AlunoNavegacaoPage({super.key, required this.conteudo});
+  const AlunoNavegacaoPage({
+    super.key,
+    required this.conteudo,
+    this.catalogoService,
+    this.aprendizagemService,
+  });
 
   final AlunoConteudo conteudo;
+  final CatalogoAlunoService? catalogoService;
+  final AprendizagemService? aprendizagemService;
 
   static const destinos = [
     AppNavigationDestination(
@@ -63,36 +76,77 @@ class AlunoNavegacaoPage extends StatefulWidget {
 
 class _AlunoNavegacaoPageState extends State<AlunoNavegacaoPage> {
   final _trilhasNavigator = GlobalKey<NavigatorState>();
+  late final CatalogoAlunoService _catalogoService =
+      widget.catalogoService ?? CatalogoAlunoService();
+  late final AprendizagemService _aprendizagemService =
+      widget.aprendizagemService ?? AprendizagemService();
+
   AbaAluno _aba = AbaAluno.inicio;
+  List<TrilhaResumo> _trilhas = const [];
+  bool _carregandoTrilhas = true;
+  String? _erroTrilhas;
+  int _carregamento = 0;
 
   AlunoConteudo get _conteudo => widget.conteudo;
-  NavigatorState get _trilhas => _trilhasNavigator.currentState!;
+  NavigatorState get _pilhaTrilhas => _trilhasNavigator.currentState!;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarTrilhas();
+  }
+
+  /// Busca o catálogo; uma resposta atrasada de chamada anterior é ignorada.
+  Future<void> _carregarTrilhas() async {
+    final operacao = ++_carregamento;
+    setState(() {
+      _carregandoTrilhas = true;
+      _erroTrilhas = null;
+    });
+    try {
+      final catalogo = await _catalogoService.listar();
+      if (!mounted || operacao != _carregamento) return;
+      setState(() {
+        _trilhas = [
+          for (final (indice, item) in catalogo.distribuicoes.indexed)
+            TrilhaResumo.fromDistribuicao(item, indice: indice),
+        ];
+      });
+    } on ApiError catch (error) {
+      if (mounted && operacao == _carregamento) {
+        setState(() => _erroTrilhas = error.message);
+      }
+    } finally {
+      if (mounted && operacao == _carregamento) {
+        setState(() => _carregandoTrilhas = false);
+      }
+    }
+  }
 
   void _selecionarAba(int index) {
     final aba = AbaAluno.values[index];
     if (aba == _aba && aba == AbaAluno.trilhas) {
-      _trilhas.popUntil((route) => route.isFirst);
+      _pilhaTrilhas.popUntil((route) => route.isFirst);
       return;
     }
     setState(() => _aba = aba);
   }
 
-  void _abrirTrilha(TrilhaResumo trilha, {LicaoCaminho? licao}) {
+  void _abrirTrilha(TrilhaResumo trilha, {bool abrirPratica = false}) {
     setState(() => _aba = AbaAluno.trilhas);
-    _trilhas
+    _pilhaTrilhas
       ..popUntil((route) => route.isFirst)
       ..push(_rotaCaminho(trilha));
-    if (licao != null) _trilhas.push(_rotaPratica(trilha, licao));
+    if (abrirPratica) _pilhaTrilhas.push(_rotaPratica(trilha));
   }
 
   void _comecarProximaLicao(ProximaLicao proxima) {
-    final licao = _conteudo.caminhoDe(proxima.trilha).licaoAtual;
-    _abrirTrilha(proxima.trilha, licao: licao);
+    _abrirTrilha(proxima.trilha, abrirPratica: true);
   }
 
   void _voltar() {
-    if (_aba == AbaAluno.trilhas && _trilhas.canPop()) {
-      _trilhas.pop();
+    if (_aba == AbaAluno.trilhas && _pilhaTrilhas.canPop()) {
+      _pilhaTrilhas.pop();
     } else if (_aba != AbaAluno.inicio) {
       setState(() => _aba = AbaAluno.inicio);
     } else {
@@ -105,21 +159,26 @@ class _AlunoNavegacaoPageState extends State<AlunoNavegacaoPage> {
       builder: (context) => CaminhoTrilhaPage(
         aluno: _conteudo.aluno,
         caminho: _conteudo.caminhoDe(trilha),
-        onSelecionarLicao: (licao) =>
-            Navigator.of(context).push(_rotaPratica(trilha, licao)),
+        onSelecionarLicao: (_) =>
+            Navigator.of(context).push(_rotaPratica(trilha)),
       ),
     );
   }
 
-  Route<void> _rotaPratica(TrilhaResumo trilha, LicaoCaminho licao) {
-    return MaterialPageRoute(
-      builder: (context) => PraticaPage(
-        desafio: _conteudo.desafioDe(trilha, licao),
-        onResponder: _conteudo.responder,
+  /// A API abre a prática pela distribuição; ao sair, o catálogo é recarregado
+  /// para refletir o progresso retornado pelo backend.
+  Route<void> _rotaPratica(TrilhaResumo trilha) {
+    final rota = MaterialPageRoute<void>(
+      builder: (context) => SessaoPraticaPage(
+        distribuicaoId: trilha.id,
+        service: _aprendizagemService,
         onVoltar: () => Navigator.of(context).pop(),
-        onContinuar: () => Navigator.of(context).pop(),
       ),
     );
+    rota.popped.then((_) {
+      if (mounted) _carregarTrilhas();
+    });
+    return rota;
   }
 
   @override
@@ -140,7 +199,10 @@ class _AlunoNavegacaoPageState extends State<AlunoNavegacaoPage> {
           children: [
             AlunoHomePage(
               aluno: _conteudo.aluno,
-              trilhas: _conteudo.trilhas,
+              trilhas: _trilhas,
+              carregandoTrilhas: _carregandoTrilhas,
+              erroTrilhas: _erroTrilhas,
+              onTentarNovamente: _carregarTrilhas,
               metaDiaria: _conteudo.metaDiaria,
               proximaLicao: _conteudo.proximaLicao,
               onAbrirTrilha: _abrirTrilha,
@@ -159,7 +221,10 @@ class _AlunoNavegacaoPageState extends State<AlunoNavegacaoPage> {
               onGenerateRoute: (_) => MaterialPageRoute(
                 builder: (_) => CatalogoAlunoPage(
                   aluno: _conteudo.aluno,
-                  trilhas: _conteudo.trilhas,
+                  trilhas: _trilhas,
+                  carregando: _carregandoTrilhas,
+                  erro: _erroTrilhas,
+                  onTentarNovamente: _carregarTrilhas,
                   onAbrirTrilha: _abrirTrilha,
                 ),
               ),

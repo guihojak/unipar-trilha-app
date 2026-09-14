@@ -1,3 +1,6 @@
+import 'package:unipar_trilha_app/modules/aprendizagem/dto/resposta_aluno_response.dart';
+import 'package:unipar_trilha_app/modules/aprendizagem/dto/sessao_response.dart';
+
 /// Alternativa exibida ao aluno. Não possui o campo `correta`: a correção só
 /// chega depois do envio (regra do plano de implementação).
 class OpcaoPratica {
@@ -17,6 +20,24 @@ class DesafioPratica {
     required this.opcoes,
   });
 
+  /// Converte o desafio da sessão. [numero] é o próximo após os acertos.
+  factory DesafioPratica.fromSessao(
+    DesafioAlunoResponse desafio,
+    ProgressoResponse progresso,
+  ) {
+    final total = progresso.total < 1 ? 1 : progresso.total;
+    return DesafioPratica(
+      id: desafio.id,
+      enunciado: desafio.enunciado,
+      numero: (progresso.respondidos + 1).clamp(1, total),
+      total: total,
+      opcoes: [
+        for (final opcao in desafio.opcoes)
+          OpcaoPratica(id: opcao.id, texto: opcao.texto),
+      ],
+    );
+  }
+
   final int id;
   final String enunciado;
 
@@ -33,12 +54,36 @@ class CorrecaoPratica {
     required this.explicacao,
     this.codigo,
     this.dica,
+    this.proximoDesafio,
+    this.concluida = false,
   });
+
+  /// Converte a resposta de `POST /aluno/sessoes/{id}/respostas`.
+  ///
+  /// O contrato atual não traz `codigo` nem `dica`; o `FeedbackCard` oculta
+  /// esses blocos quando ausentes.
+  factory CorrecaoPratica.fromResposta(RespostaAlunoResponse resposta) {
+    final proximo = resposta.proximoDesafio;
+    return CorrecaoPratica(
+      correta: resposta.correta,
+      explicacao: resposta.feedback,
+      concluida: resposta.progresso.concluida,
+      proximoDesafio: proximo == null
+          ? null
+          : DesafioPratica.fromSessao(proximo, resposta.progresso),
+    );
+  }
 
   final bool correta;
   final String explicacao;
   final String? codigo;
   final String? dica;
+
+  /// Desafio seguinte, usado por "Continuar" após um acerto.
+  final DesafioPratica? proximoDesafio;
+
+  /// A sessão terminou com esta resposta.
+  final bool concluida;
 }
 
 /// Envia a opção escolhida e devolve a correção.

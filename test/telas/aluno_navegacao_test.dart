@@ -6,7 +6,6 @@ import 'package:unipar_trilha_app/modules/aprendizagem/page/caminho_trilha_page.
 import 'package:unipar_trilha_app/modules/aprendizagem/page/pratica_page.dart';
 import 'package:unipar_trilha_app/modules/catalogo_aluno/page/catalogo_aluno_page.dart';
 import 'package:unipar_trilha_app/modules/home/page/aluno_home_page.dart';
-import 'package:unipar_trilha_app/modules/home/page/aluno_navegacao_page.dart';
 import 'package:unipar_trilha_app/modules/perfil/page/perfil_page.dart';
 import 'package:unipar_trilha_app/shared/preview/aluno_preview_conteudo.dart';
 
@@ -18,10 +17,11 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.dark,
-        home: AlunoNavegacaoPage(conteudo: AlunoPreviewConteudo.conteudo()),
+        home: AlunoPreviewConteudo.navegacao(atraso: Duration.zero),
       ),
     );
-    await tester.pump();
+    // O catálogo chega pelo service (API simulada) após o primeiro quadro.
+    await tester.pumpAndSettle();
   }
 
   Future<void> aba(WidgetTester tester, String nome) async {

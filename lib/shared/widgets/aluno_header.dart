@@ -14,7 +14,7 @@ class AlunoHeader extends StatelessWidget {
     return ProfileHeader(
       name: aluno.nome,
       registration: aluno.ra,
-      avatar: aluno.avatar,
+      avatar: aluno.fotoUrl == null ? null : NetworkImage(aluno.fotoUrl!),
       trailing: aluno.sequenciaDias == null
           ? null
           : SequenciaBadge(dias: aluno.sequenciaDias!),

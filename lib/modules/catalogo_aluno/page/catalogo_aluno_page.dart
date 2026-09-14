@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:unipar_trilha_app/core/theme/app_colors.dart';
 import 'package:unipar_trilha_app/core/theme/app_typography.dart';
+import 'package:unipar_trilha_app/core/widgets/app_async_state.dart';
 import 'package:unipar_trilha_app/core/widgets/app_design_frame.dart';
 import 'package:unipar_trilha_app/core/widgets/app_empty_state.dart';
 import 'package:unipar_trilha_app/core/widgets/app_scroll_indicator.dart';
@@ -27,11 +28,19 @@ class CatalogoAlunoPage extends StatefulWidget {
     required this.aluno,
     required this.trilhas,
     required this.onAbrirTrilha,
+    this.carregando = false,
+    this.erro,
+    this.onTentarNovamente,
   });
 
   final AlunoResumo aluno;
   final List<TrilhaResumo> trilhas;
   final ValueChanged<TrilhaResumo> onAbrirTrilha;
+
+  /// Estado de `CatalogoAlunoService.listar`, controlado pela navegação.
+  final bool carregando;
+  final String? erro;
+  final VoidCallback? onTentarNovamente;
 
   @override
   State<CatalogoAlunoPage> createState() => _CatalogoAlunoPageState();
@@ -88,7 +97,18 @@ class _CatalogoAlunoPageState extends State<CatalogoAlunoPage> {
           ),
           const SizedBox(height: 23.3),
           Expanded(
-            child: widget.trilhas.isEmpty
+            child: widget.carregando
+                ? const Center(
+                    child: AppLoadingState(message: 'Carregando trilhas...'),
+                  )
+                : widget.erro != null
+                ? Center(
+                    child: AppErrorState(
+                      message: widget.erro!,
+                      onRetry: widget.onTentarNovamente,
+                    ),
+                  )
+                : widget.trilhas.isEmpty
                 ? const Center(
                     child: AppEmptyState(
                       title: 'Nenhuma trilha disponível',

@@ -41,7 +41,10 @@ class PraticaPage extends StatefulWidget {
   final DesafioPratica desafio;
   final ResponderDesafio onResponder;
   final VoidCallback onVoltar;
-  final VoidCallback onContinuar;
+
+  /// Chamado por "Continuar" após um acerto, com a correção recebida
+  /// (`proximoDesafio` e `concluida`).
+  final ValueChanged<CorrecaoPratica> onContinuar;
 
   @override
   State<PraticaPage> createState() => _PraticaPageState();
@@ -197,7 +200,7 @@ class _PraticaPageState extends State<PraticaPage> {
                         label: 'Continuar',
                         variant: AppButtonVariant.confirm,
                         size: AppButtonSize.small,
-                        onPressed: widget.onContinuar,
+                        onPressed: () => widget.onContinuar(correcao),
                       )
                     : null,
               ),

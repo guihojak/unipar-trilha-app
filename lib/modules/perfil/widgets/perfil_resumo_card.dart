@@ -66,7 +66,9 @@ class PerfilResumoCard extends StatelessWidget {
                 ),
                 child: AppAvatar(
                   name: aluno.nome,
-                  image: aluno.avatar,
+                  image: aluno.fotoUrl == null
+                      ? null
+                      : NetworkImage(aluno.fotoUrl!),
                   size: 95,
                 ),
               ),

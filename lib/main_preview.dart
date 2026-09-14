@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:unipar_trilha_app/core/theme/app_theme.dart';
-import 'package:unipar_trilha_app/modules/home/page/aluno_navegacao_page.dart';
 import 'package:unipar_trilha_app/shared/preview/aluno_preview_conteudo.dart';
 
 /// Pré-visualização das telas do aluno (wireframes 1–7) com conteúdo de
@@ -15,7 +14,7 @@ void main() {
       title: 'Unipar Trilha — Pré-visualização',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      home: AlunoNavegacaoPage(conteudo: AlunoPreviewConteudo.conteudo()),
+      home: AlunoPreviewConteudo.navegacao(),
     ),
   );
 }
